@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -94,8 +95,8 @@ public class DataLoader implements ApplicationRunner {
 		reviewers.add(new UserElasticSearchDTO("milica", "krepic", "mil@gmail.com"));
 		reviewers.add(new UserElasticSearchDTO("nemanja", "ciric", "nem@gmail.com"));
 		
-		
-		ScientificPaperDTO sp1 = new ScientificPaperDTO(1l, "trouglovi", "marko", "dobar,zivotinje", "Ovo je tekst prvog rada.", "National geography", "Priroda", "zivotinje", coAuthors, reviewers);
+		// koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
+		ScientificPaperDTO sp1 = new ScientificPaperDTO(1l, "trouglovi", "marko", "dobar,zivotinje", "Ovo je tekst prvog rada. Vrlo je zanimljiv.", "National geography", "Priroda", "zivotinje", coAuthors, reviewers, new GeoPoint(45.254482, 19.864243));
 		
 
 		List<UserElasticSearchDTO> coAuthors2 = new ArrayList<UserElasticSearchDTO>();
@@ -108,7 +109,8 @@ public class DataLoader implements ApplicationRunner {
 		reviewers2.add(new UserElasticSearchDTO("srbo", "milic", "mil@gmail.com"));
 		reviewers2.add(new UserElasticSearchDTO("marija", "dejanic", "nem@gmail.com"));
 		
-		ScientificPaperDTO sp2 = new ScientificPaperDTO(2l, "Trouglovi", "Marko", "komplikovano,uglovi", "Ovo je tekst drugog rada.", "Veneova zbirka", "Matematika", "Kosinusi", coAuthors2, reviewers2);
+		// koordinate hotela sajam 400 m daleko od sajma
+		ScientificPaperDTO sp2 = new ScientificPaperDTO(2l, "Trouglovi", "Marko", "komplikovano,uglovi", "Ovo je tekst drugog rada. Radi se o svemu i svacemu.", "Veneova zbirka", "Matematika", "Kosinusi", coAuthors2, reviewers2, new GeoPoint(45.254282, 19.819469));
 		
 		est.getClient().prepareIndex("scientificpaper", "paper", "1")
 		   .setSource(sp1, XContentType.JSON)

@@ -1,7 +1,5 @@
 package com.udd.naucnacentrala.web.controller;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +41,20 @@ public class SearchController {
 	public ResponseEntity<?> searchByMultipleOptionalFields(@RequestBody Map<String, Object> json) {
 		
 		return new ResponseEntity(elasticSearchService.searchByMultipleOptionalFields(json), HttpStatus.OK);
+	}
+	
+	@PostMapping
+	@RequestMapping(value = "moreLikeThis")
+	public ResponseEntity<?> searchByMoreLikeThis(@RequestBody String similarText) {
+		
+		return new ResponseEntity(elasticSearchService.searchByMoreLikeThis(similarText), HttpStatus.OK);
+	}
+
+	@PostMapping
+	@RequestMapping(value = "geoPoint/{longitude}/{latitude}")
+	public ResponseEntity<?> searchByGeoPoint(@PathVariable("longitude") Long longitude, @PathVariable("latitude") Long latitude) {
+		
+		return new ResponseEntity(elasticSearchService.searchByGeoPoint(longitude, latitude), HttpStatus.OK);
 	}
 }
 

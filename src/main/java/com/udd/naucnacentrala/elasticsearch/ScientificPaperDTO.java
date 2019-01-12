@@ -2,10 +2,14 @@ package com.udd.naucnacentrala.elasticsearch;
 
 import java.util.List;
 
+
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.GeoPointField;
+import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -37,7 +41,7 @@ public class ScientificPaperDTO {
 
 	@Field(type = FieldType.Text)
 	@JsonProperty
-	private String abstractDescrption;
+	private String abstractDescription;
 
 	@Field(type = FieldType.Keyword)
 	@JsonProperty
@@ -50,14 +54,18 @@ public class ScientificPaperDTO {
 	@Field(type = FieldType.Nested)
 	@JsonProperty
 	private List<UserElasticSearchDTO> reviewers;
+	
+	@GeoPointField
+	@JsonProperty
+	private GeoPoint geo_point;
 
 	public ScientificPaperDTO() {
 
 	}
 
 	public ScientificPaperDTO(Long id, String title, String author, String keywords, String pdfText, String magazine,
-			String abstractDescrption, String scientificArea, List<UserElasticSearchDTO> coAuthors,
-			List<UserElasticSearchDTO> reviewers) {
+			String abstractDescription, String scientificArea, List<UserElasticSearchDTO> coAuthors,
+			List<UserElasticSearchDTO> reviewers, GeoPoint location) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -65,18 +73,15 @@ public class ScientificPaperDTO {
 		this.keywords = keywords;
 		this.pdfText = pdfText;
 		this.magazine = magazine;
-		this.abstractDescrption = abstractDescrption;
+		this.abstractDescription = abstractDescription;
 		this.scientificArea = scientificArea;
 		this.coAuthors = coAuthors;
 		this.reviewers = reviewers;
+		this.geo_point = location;
 	}
-
+	
 	public Long getId() {
 		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getTitle() {
@@ -119,12 +124,12 @@ public class ScientificPaperDTO {
 		this.magazine = magazine;
 	}
 
-	public String getAbstractDescrption() {
-		return abstractDescrption;
+	public String getAbstractDescription() {
+		return abstractDescription;
 	}
 
-	public void setAbstractDescrption(String abstractDescrption) {
-		this.abstractDescrption = abstractDescrption;
+	public void setAbstractDescription(String abstractDescription) {
+		this.abstractDescription = abstractDescription;
 	}
 
 	public String getScientificArea() {
@@ -151,11 +156,20 @@ public class ScientificPaperDTO {
 		this.reviewers = reviewers;
 	}
 
+	public GeoPoint getLocation() {
+		return geo_point;
+	}
+
+	public void setLocation(GeoPoint location) {
+		this.geo_point = location;
+	}
+
 	@Override
 	public String toString() {
-		return "MagazineDTO [id=" + id + ", title=" + title + ", author=" + author + ", keywords=" + keywords
-				+ ", pdfText=" + pdfText + ", magazine=" + magazine + ", abstractDescrption=" + abstractDescrption
-				+ ", scientificArea=" + scientificArea + ", coAuthors=" + coAuthors + ", reviewers=" + reviewers + "]";
+		return "ScientificPaperDTO [id=" + id + ", title=" + title + ", author=" + author + ", keywords=" + keywords
+				+ ", pdfText=" + pdfText + ", magazine=" + magazine + ", abstractDescription=" + abstractDescription
+				+ ", scientificArea=" + scientificArea + ", coAuthors=" + coAuthors + ", reviewers=" + reviewers
+				+ ", location=" + geo_point + "]";
 	}
 
 }
