@@ -6,6 +6,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.udd.naucnacentrala.elasticsearch.PDFHandler;
+
 @SpringBootApplication
 public class NaucnacentralaApplication {
 	
@@ -16,5 +18,6 @@ public class NaucnacentralaApplication {
 	
 	public static void main(String[] args) {
 		SpringApplication.run(NaucnacentralaApplication.class, args);
+		
 	}
 }

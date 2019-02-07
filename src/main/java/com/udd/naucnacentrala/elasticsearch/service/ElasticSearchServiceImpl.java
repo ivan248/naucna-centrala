@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.udd.naucnacentrala.elasticsearch.ScientificPaperDTO;
+import com.udd.naucnacentrala.elasticsearch.ScientificPaperIndexUnit;
 
 @Service
 public class ElasticSearchServiceImpl implements ElasticSearchService {
@@ -29,9 +29,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 	private ElasticsearchTemplate elasticSearchTemplate;
 
 	@Override
-	public List<ScientificPaperDTO> searchByOneField(String field, String value) {
+	public List<ScientificPaperIndexUnit> searchByOneField(String field, String value) {
 
-		List<ScientificPaperDTO> resultsList = new ArrayList<ScientificPaperDTO>();
+		List<ScientificPaperIndexUnit> resultsList = new ArrayList<ScientificPaperIndexUnit>();
 
 		System.out.println(field + value);
 
@@ -46,10 +46,10 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 		for (SearchHit o : response.getHits()) {
 
 			ObjectMapper objectMapper = new ObjectMapper();
-			ScientificPaperDTO result = null;
+			ScientificPaperIndexUnit result = null;
 
 			try {
-				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperDTO.class);
+				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperIndexUnit.class);
 				resultsList.add(result);
 			} catch (JsonParseException e) {
 				e.printStackTrace();
@@ -66,9 +66,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 	// https://www.elastic.co/guide/en/elasticsearch/reference/master/query-dsl-match-query-phrase.html
 
 	@Override
-	public List<ScientificPaperDTO> searchByMultipleFields(Map<String, String> json) {
+	public List<ScientificPaperIndexUnit> searchByMultipleFields(Map<String, String> json) {
 
-		List<ScientificPaperDTO> resultsList = new ArrayList<ScientificPaperDTO>();
+		List<ScientificPaperIndexUnit> resultsList = new ArrayList<ScientificPaperIndexUnit>();
 		BoolQueryBuilder qb = QueryBuilders.boolQuery();
 
 		for (Map.Entry<String, String> item : json.entrySet()) {
@@ -79,10 +79,10 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
 		for (SearchHit o : response.getHits()) {
 			ObjectMapper objectMapper = new ObjectMapper();
-			ScientificPaperDTO result = null;
+			ScientificPaperIndexUnit result = null;
 
 			try {
-				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperDTO.class);
+				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperIndexUnit.class);
 				resultsList.add(result);
 
 			} catch (JsonParseException e) {
@@ -101,9 +101,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public List<ScientificPaperDTO> searchByMultipleOptionalFields(Map<String, Object> json) {
+	public List<ScientificPaperIndexUnit> searchByMultipleOptionalFields(Map<String, Object> json) {
 
-		List<ScientificPaperDTO> resultsList = new ArrayList<ScientificPaperDTO>();
+		List<ScientificPaperIndexUnit> resultsList = new ArrayList<ScientificPaperIndexUnit>();
 		List<String> listOfOptionalFields = null;
 		List<String> listOfPhraseFields = null;
 
@@ -212,10 +212,10 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
 		for (SearchHit o : response.getHits()) {
 			ObjectMapper objectMapper = new ObjectMapper();
-			ScientificPaperDTO result = null;
+			ScientificPaperIndexUnit result = null;
 
 			try {
-				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperDTO.class);
+				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperIndexUnit.class);
 
 				// Dinamicki sazetak - Highlighter
 				for (String item : o.getHighlightFields().keySet()) {
@@ -244,9 +244,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 	}
 
 	@Override
-	public List<ScientificPaperDTO> searchByMoreLikeThis(String similarText) {
+	public List<ScientificPaperIndexUnit> searchByMoreLikeThis(String similarText) {
 
-		List<ScientificPaperDTO> resultsList = new ArrayList<ScientificPaperDTO>();
+		List<ScientificPaperIndexUnit> resultsList = new ArrayList<ScientificPaperIndexUnit>();
 
 		// tekst koji pretrazujem
 		String searchArray[] = { "Ovo" };
@@ -267,10 +267,10 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
 		for (SearchHit o : response.getHits()) {
 			ObjectMapper objectMapper = new ObjectMapper();
-			ScientificPaperDTO result = null;
+			ScientificPaperIndexUnit result = null;
 
 			try {
-				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperDTO.class);
+				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperIndexUnit.class);
 				resultsList.add(result);
 
 			} catch (JsonParseException e) {
@@ -286,9 +286,9 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 	}
 
 	@Override
-	public List<ScientificPaperDTO> searchByGeoPoint(Long longitude, Long latitude) {
+	public List<ScientificPaperIndexUnit> searchByGeoPoint(Long longitude, Long latitude) {
 
-		List<ScientificPaperDTO> resultsList = new ArrayList<ScientificPaperDTO>();
+		List<ScientificPaperIndexUnit> resultsList = new ArrayList<ScientificPaperIndexUnit>();
 
 		GeoDistanceQueryBuilder qb = new GeoDistanceQueryBuilder("geo_point");
 
@@ -301,10 +301,10 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 
 		for (SearchHit o : response.getHits()) {
 			ObjectMapper objectMapper = new ObjectMapper();
-			ScientificPaperDTO result = null;
+			ScientificPaperIndexUnit result = null;
 
 			try {
-				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperDTO.class);
+				result = objectMapper.readValue(o.getSourceAsString(), ScientificPaperIndexUnit.class);
 				resultsList.add(result);
 
 			} catch (JsonParseException e) {

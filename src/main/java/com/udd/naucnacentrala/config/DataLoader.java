@@ -6,16 +6,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import com.udd.naucnacentrala.domain.Authority;
 import com.udd.naucnacentrala.domain.Magazine;
@@ -26,7 +30,8 @@ import com.udd.naucnacentrala.domain.ScientificPaper;
 import com.udd.naucnacentrala.domain.Subscription;
 import com.udd.naucnacentrala.domain.User;
 import com.udd.naucnacentrala.domain.UserRole;
-import com.udd.naucnacentrala.elasticsearch.ScientificPaperDTO;
+import com.udd.naucnacentrala.elasticsearch.PDFHandler;
+import com.udd.naucnacentrala.elasticsearch.ScientificPaperIndexUnit;
 import com.udd.naucnacentrala.elasticsearch.UserElasticSearchDTO;
 import com.udd.naucnacentrala.elasticsearch.repository.ScientificPaperElasticSearchRepository;
 import com.udd.naucnacentrala.repository.AuthoritiesRepository;
@@ -74,6 +79,14 @@ public class DataLoader implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+
+		HttpEntity<String> entity = new HttpEntity<String>("{\"index.mapping.depth.limit\": 30000}", headers);
+		restTemplate.put("http://localhost:9200/scientificpaper/_settings", entity);
+		System.out.println("success");
+		
 		insertIntoElasticSearch();
 		insertIntoScientificArea();
 		insertIntoUser();
@@ -84,7 +97,11 @@ public class DataLoader implements ApplicationRunner {
 	}
 
 	private void insertIntoElasticSearch() {
+	
+		
 
+		List<ScientificPaperIndexUnit> listOfPdfs = PDFHandler.getIndexUnit();
+		
 		List<UserElasticSearchDTO> coAuthors = new ArrayList<UserElasticSearchDTO>();
 		
 		coAuthors.add(new UserElasticSearchDTO("ivan", "ivanovic", "ivan@gmail.com"));
@@ -95,8 +112,17 @@ public class DataLoader implements ApplicationRunner {
 		reviewers.add(new UserElasticSearchDTO("milica", "krepic", "mil@gmail.com"));
 		reviewers.add(new UserElasticSearchDTO("nemanja", "ciric", "nem@gmail.com"));
 		
+		listOfPdfs.get(0).setId(1l);
+		listOfPdfs.get(0).setCoAuthors(coAuthors);
+		listOfPdfs.get(0).setReviewers(reviewers);
+		listOfPdfs.get(0).setAbstractDescription("Priroda apstraktni opis");
+		listOfPdfs.get(0).setMagazine("National Geography");
+		listOfPdfs.get(0).setScientificArea("Priroda");
+		listOfPdfs.get(0).setLocation(new GeoPoint(45.254482, 19.864243));
+		//listOfPdfs.get(0).setPdfText("dsds");
+		
 		// koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
-		ScientificPaperDTO sp1 = new ScientificPaperDTO(1l, "trouglovi", "marko", "dobar,zivotinje", "Ovo je tekst prvog rada. Vrlo je zanimljiv.", "National geography", "Priroda", "zivotinje", coAuthors, reviewers, new GeoPoint(45.254482, 19.864243));
+		// ScientificPaperIndexUnit sp1 = new ScientificPaperIndexUnit(1l, "trouglovi", "marko", "dobar,zivotinje", pdfText, "National geography", "Priroda", "zivotinje", coAuthors, reviewers, new GeoPoint(45.254482, 19.864243));
 		
 
 		List<UserElasticSearchDTO> coAuthors2 = new ArrayList<UserElasticSearchDTO>();
@@ -110,18 +136,43 @@ public class DataLoader implements ApplicationRunner {
 		reviewers2.add(new UserElasticSearchDTO("marija", "dejanic", "nem@gmail.com"));
 		
 		// koordinate hotela sajam 400 m daleko od sajma
-		ScientificPaperDTO sp2 = new ScientificPaperDTO(2l, "Trouglovi", "Marko", "komplikovano,uglovi", "Ovo je tekst drugog rada. Radi se o svemu i svacemu.", "Veneova zbirka", "Matematika", "Kosinusi", coAuthors2, reviewers2, new GeoPoint(45.254282, 19.819469));
+		ScientificPaperIndexUnit sp2 = new ScientificPaperIndexUnit(2l, "Trouglovi", "Marko", "komplikovano,uglovi", "Ovo je tekst drugog rada. Radi se o svemu i svacemu.", "Veneova zbirka", "Matematika", "Kosinusi", coAuthors2, reviewers2, new GeoPoint(45.254282, 19.819469));
 		
-		est.getClient().prepareIndex("scientificpaper", "paper", "1")
-		   .setSource(sp1, XContentType.JSON)
-		   .get();
+		listOfPdfs.get(1).setId(2l);
+		listOfPdfs.get(1).setCoAuthors(coAuthors2);
+		listOfPdfs.get(1).setReviewers(reviewers2);
+		listOfPdfs.get(1).setAbstractDescription("Matematika apstraktni opis");
+		listOfPdfs.get(1).setMagazine("Veneova zbirka");
+		listOfPdfs.get(1).setScientificArea("Matematika");
+		listOfPdfs.get(1).setLocation(new GeoPoint(45.254282, 19.819469));
+		//listOfPdfs.get(1).setPdfText("dsds");
 		
-		est.getClient().prepareIndex("scientificpaper", "paper", "2")
-		   .setSource(sp2, XContentType.JSON)
-		   .get();
 		
-		elasticRepository.save(sp1);
-		elasticRepository.save(sp2);
+//		for(int i=0; i<listOfPdfs.size(); i++) {
+//			
+//			Long id = new Long(i);
+//			id++;
+//			
+//			listOfPdfs.get(i).setId(id);
+//			
+//			System.out.println("Ispis iz dataloadera: " + listOfPdfs.get(i));
+//			
+//			elasticRepository.save(listOfPdfs.get(i));
+//			}
+			
+			ScientificPaperIndexUnit sp1 = listOfPdfs.get(0);
+			sp2 = listOfPdfs.get(1);
+			
+			
+			est.getClient().prepareIndex("scientificpaper", "paper", "1")
+			   .setSource(sp1, XContentType.JSON)
+			   .get();
+			
+			est.getClient().prepareIndex("scientificpaper", "paper", "2")
+			   .setSource(sp2, XContentType.JSON)
+			   .get();
+			
+	
 		
 	}
 
@@ -217,11 +268,17 @@ public class DataLoader implements ApplicationRunner {
 		u1.setTitle("Doktor nauka");
 		
 		List<Authority> authorities = new ArrayList<Authority>();
+		
 		Authority a1 = new Authority();
 		a1.setName(UserRole.AUTHOR);
 		authoritiesRepository.save(a1);
 		
+		Authority a2 = new Authority();
+		a2.setName(UserRole.READER);
+		authoritiesRepository.save(a2);
+		
 		authorities.add(authoritiesRepository.getOne(1l));
+		authorities.add(authoritiesRepository.getOne(2l));
 		u1.setAuthorities(authorities);
 		
 		Set<ScientificArea> scientificAreas1 = new HashSet<ScientificArea>();
@@ -244,9 +301,6 @@ public class DataLoader implements ApplicationRunner {
 		u2.setTitle(null);
 		
 		List<Authority> authorities2 = new ArrayList<Authority>();
-		Authority a2 = new Authority();
-		a2.setName(UserRole.READER);
-		authoritiesRepository.save(a2);
 		
 		authorities2.add(authoritiesRepository.getOne(2l));
 		u2.setAuthorities(authorities2);
@@ -334,6 +388,7 @@ public class DataLoader implements ApplicationRunner {
 		m1.setPaymentType(PaymentType.OPENACCESS);
 		m1.setPrice((double)3);
 		m1.setMainEditor(userRepository.getOne((long)3));
+		m1.setMerchantId("merchantID1");
 		
 		Set<User> reviewers1 = new HashSet<User>();
 		
@@ -367,6 +422,7 @@ public class DataLoader implements ApplicationRunner {
 		m2.setPaymentType(PaymentType.SUBSCRIPTION);
 		m2.setPrice((double)2);
 		m2.setMainEditor(userRepository.getOne((long)3));
+		m2.setMerchantId("merchantID2");
 
 		
 		Set<User> reviewers2 = new HashSet<User>();

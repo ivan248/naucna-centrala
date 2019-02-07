@@ -14,7 +14,7 @@ import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Document(indexName = "scientificpaper", type = "paper", shards = 1)
-public class ScientificPaperDTO {
+public class ScientificPaperIndexUnit {
 
 	@Id
 	private Long id;
@@ -59,11 +59,13 @@ public class ScientificPaperDTO {
 	@JsonProperty
 	private GeoPoint geo_point;
 
-	public ScientificPaperDTO() {
+	private double price;
+	
+	public ScientificPaperIndexUnit() {
 
 	}
 
-	public ScientificPaperDTO(Long id, String title, String author, String keywords, String pdfText, String magazine,
+	public ScientificPaperIndexUnit(Long id, String title, String author, String keywords, String pdfText, String magazine,
 			String abstractDescription, String scientificArea, List<UserElasticSearchDTO> coAuthors,
 			List<UserElasticSearchDTO> reviewers, GeoPoint location) {
 		super();
@@ -80,6 +82,10 @@ public class ScientificPaperDTO {
 		this.geo_point = location;
 	}
 	
+	public void setId(Long id) {
+		this.id = id;
+	}
+
 	public Long getId() {
 		return id;
 	}

@@ -1,6 +1,5 @@
 package com.udd.naucnacentrala.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,7 +53,7 @@ public class UserDTO implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// TODO Auto-generated method stub
-		return new ArrayList<GrantedAuthority>();
+		return this.authorities;
 	}
 
 	@Override

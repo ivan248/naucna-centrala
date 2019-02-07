@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -57,13 +58,22 @@ public class JwtTokenUtil {
     
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
+        
+        System.out.println(userDetails.getAuthorities().toString());
+        String roles = "";
+        
+        for(GrantedAuthority ga : userDetails.getAuthorities()) {
+        	roles += ga.getAuthority() + ";";
+        }
+        claims.put("role", roles);
+        
         return doGenerateToken(claims, userDetails.getUsername());
     }
     private String doGenerateToken(Map<String, Object> claims, String subject) {
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expiration * 1000);
 
-        System.out.println("doGenerateToken " + createdDate);
+        System.out.println("doGenerateToken " + createdDate + " claims: " + claims);
 
         return Jwts.builder()
                 .setClaims(claims)

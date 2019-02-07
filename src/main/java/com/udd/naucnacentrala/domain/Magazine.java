@@ -12,6 +12,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,6 +35,12 @@ public class Magazine {
 	private Set<ScientificArea> scientificAreas;
 	
 	private PaymentType paymentType;
+	
+	/*
+	 * ID that the bank gives to the merchant when registering for online payment
+	 */
+	@Pattern(regexp = "\\w{1,30}")
+	private String merchantId;
 	
 	// recenzenti
 	@JoinTable(name ="magazine_reviewers")
@@ -124,6 +131,14 @@ public class Magazine {
 
 	public void setMainEditor(User mainEditor) {
 		this.mainEditor = mainEditor;
+	}
+
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
 	}
 	
 }

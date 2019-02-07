@@ -5,10 +5,10 @@ import java.util.List;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 
-import com.udd.naucnacentrala.elasticsearch.ScientificPaperDTO;
+import com.udd.naucnacentrala.elasticsearch.ScientificPaperIndexUnit;
 
 @Repository
-public interface ScientificPaperElasticSearchRepository extends ElasticsearchRepository<ScientificPaperDTO, Long>{
+public interface ScientificPaperElasticSearchRepository extends ElasticsearchRepository<ScientificPaperIndexUnit, Long>{
 
-	List<ScientificPaperDTO> findByAuthor(String name);
+	List<ScientificPaperIndexUnit> findByAuthor(String name);
 }

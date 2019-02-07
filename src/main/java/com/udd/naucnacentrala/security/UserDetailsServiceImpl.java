@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.udd.naucnacentrala.domain.Authority;
+
 @Service("userDetailsService")
 @Transactional
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -39,12 +41,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		user.setIsEnabled(true);
 		user.setPassword(userFromDB.getPassword());
 		user.setUsername(userFromDB.getEmail());
-		List<GrantedAuthority> authorities = new ArrayList<>();
-		authorities.add(new SimpleGrantedAuthority("AUTHOR"));
-		user.setAuthorities(authorities);
-
-		return user;
 		
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		for(Authority a : userFromDB.getAuthorities()) {
+			authorities.add(new SimpleGrantedAuthority(a.getName().toString()));
+		}
+		user.setAuthorities(authorities);
+		
+		return user;
 	}
 
 }

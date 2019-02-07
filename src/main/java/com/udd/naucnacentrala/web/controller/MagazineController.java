@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.udd.naucnacentrala.elasticsearch.ScientificPaperDTO;
+import com.udd.naucnacentrala.elasticsearch.ScientificPaperIndexUnit;
 import com.udd.naucnacentrala.service.MagazineService;
 
 @RestController
@@ -55,10 +55,10 @@ public class MagazineController {
 			h.add(o.getHighlightFields());
 			
 			ObjectMapper objectMapper = new ObjectMapper();
-			ScientificPaperDTO data = null;
+			ScientificPaperIndexUnit data = null;
 			try {
 				System.out.println("Usao: ");
-				data = objectMapper.readValue(o.getSourceAsString(), ScientificPaperDTO.class);
+				data = objectMapper.readValue(o.getSourceAsString(), ScientificPaperIndexUnit.class);
 				System.out.println(data);
 			} catch (JsonParseException e) {
 				// TODO Auto-generated catch block
