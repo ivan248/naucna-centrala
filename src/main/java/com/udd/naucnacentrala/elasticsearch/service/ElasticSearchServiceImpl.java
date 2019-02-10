@@ -301,15 +301,15 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 	}
 
 	@Override
-	public List<ScientificPaperIndexUnit> searchByGeoPoint(Long longitude, Long latitude) {
+	public List<ScientificPaperIndexUnit> searchByGeoPoint(Double latitude, Double longitude) {
 
 		List<ScientificPaperIndexUnit> resultsList = new ArrayList<ScientificPaperIndexUnit>();
 
 		GeoDistanceQueryBuilder qb = new GeoDistanceQueryBuilder("geo_point");
 
-		// koordinate sajma
-		qb.point(45.258188, 19.822986).distance(1, DistanceUnit.KILOMETERS);
+		qb.point(latitude, longitude).distance(1, DistanceUnit.KILOMETERS);
 
+		System.out.println("GeoSearch: latitude: " + latitude + " , longitude: " + longitude); 
 		System.out.println(qb);
 		
 		SearchResponse response = elasticSearchTemplate.getClient().prepareSearch("scientificpaper").setQuery(qb).get();

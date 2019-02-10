@@ -50,11 +50,11 @@ public class SearchController {
 		return new ResponseEntity(elasticSearchService.searchByMoreLikeThis(id), HttpStatus.OK);
 	}
 
-	@PostMapping
-	@RequestMapping(value = "geoPoint/{longitude}/{latitude}")
-	public ResponseEntity<?> searchByGeoPoint(@PathVariable("longitude") Long longitude, @PathVariable("latitude") Long latitude) {
+	@GetMapping
+	@RequestMapping(value = "geoPoint/{latitude}/{longitude}")
+	public ResponseEntity<?> searchByGeoPoint(@PathVariable("latitude") Double latitude, @PathVariable("longitude") Double longitude) {
 		
-		return new ResponseEntity(elasticSearchService.searchByGeoPoint(longitude, latitude), HttpStatus.OK);
+		return new ResponseEntity(elasticSearchService.searchByGeoPoint(latitude, longitude), HttpStatus.OK);
 	}
 }
 

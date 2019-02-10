@@ -11,5 +11,5 @@ public interface ElasticSearchService {
 	List<ScientificPaperIndexUnit> searchByMultipleFields(Map<String, String> json);
 	List<ScientificPaperIndexUnit> searchByMultipleOptionalFields(Map<String, Object> json);
 	List<ScientificPaperIndexUnit> searchByMoreLikeThis(Long id);
-	List<ScientificPaperIndexUnit> searchByGeoPoint(Long longitude, Long latitude);
+	List<ScientificPaperIndexUnit> searchByGeoPoint(Double latitude, Double longitude);
 }

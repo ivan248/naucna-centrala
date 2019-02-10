@@ -87,10 +87,10 @@ public class DataLoader implements ApplicationRunner {
 	public void run(ApplicationArguments args) throws Exception {
 		
 		//insertIntoElasticSearch();
+		insertIntoScientificArea();
+		insertIntoUser();
+		insertIntoMagazine();
 		parsePDFandInsertIntoElasticSearchServer();
-//		insertIntoScientificArea();
-//		insertIntoUser();
-//		insertIntoMagazine();
 //		insertIntoScientificPaper();
 //		insertIntoSubscription();
 //		insertIntoPaymentRecord();		
@@ -139,14 +139,27 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 					reviewers.add(new UserElasticSearchDTO("milica", "krepic", "mil@gmail.com"));
 					reviewers.add(new UserElasticSearchDTO("nemanja", "ciric", "nem@gmail.com"));
 					
+					Set<User> coAuthors1 = new HashSet<User>();
+					
+					coAuthors1.add(userRepository.getOne(2l));
+					
 					retVal.setId(id);
 					retVal.setCoAuthors(coAuthors);
 					retVal.setReviewers(reviewers);
 					retVal.setAbstractDescription("Priroda apstraktni opis");
 					retVal.setMagazine("National Geography");
 					retVal.setScientificArea("Priroda");
-					retVal.setLocation(new GeoPoint(45.254482, 19.864243));
-
+					
+					
+					if(id.equals(0l)) // koordinate sajma
+						retVal.setLocation(new GeoPoint(45.258188, 19.822986));
+					else if(id.equals(1l))  // koordinate hotela sajam 400 m daleko od sajma
+						retVal.setLocation(new GeoPoint(45.254282, 19.819469));
+					else if(id.equals(2l)) // koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
+						retVal.setLocation(new GeoPoint(45.254482, 19.864243));
+					else
+						retVal.setLocation(new GeoPoint(50.258188, 19.822982));
+					
 					id++;
 					
 					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -165,7 +178,8 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 					    .endObject();
 					
 					elasticRepository.save(retVal);
-					scientificPaperRepository.save(retVal);
+					scientificPaperRepository.save(new ScientificPaper(retVal.getId(), retVal.getTitle(), retVal.getKeywords(),
+							retVal.getAbstractDescription(), retVal.getPdfText(), coAuthors1, scientificAreaRepository.getOne(1l), userRepository.getOne(1l), magazineRepository.getOne(1l)));
 					
 //					est.getClient().prepareIndex("scientificpaper", "paper", id.toString())
 //					   .setSource(builder)
@@ -179,6 +193,7 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 			
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("Greksa pri konvertovanju dokumenta u pdf");
 		}
 

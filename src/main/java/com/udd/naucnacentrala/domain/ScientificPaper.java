@@ -8,10 +8,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -32,6 +32,7 @@ public class ScientificPaper {
 	
 	private String abstractDescription;
 	
+	@Lob
 	private String pdf;
 	
 	@JoinTable(name = "scientific_paper_co_authors")
@@ -40,24 +41,36 @@ public class ScientificPaper {
 		
 	@ManyToOne(optional = false)
 	@JoinColumn(name="scientific_area_id")
-	@NotNull
 	@JsonIgnore
 	private ScientificArea scientificArea;
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name="author_id")
-	@NotNull
 	@JsonIgnore
 	private User author;
 	
 	@ManyToOne(optional = false)
 	@JoinColumn(name="magazine_id")
-	@NotNull
 	@JsonIgnore
 	private Magazine magazine;
 	
 	public ScientificPaper() {
 		
+	}
+	
+	public ScientificPaper(Long id, @NotEmpty String title, String keywords, String abstractDescription, String pdf,
+			Set<User> coAuthors, ScientificArea scientificArea, User author,
+			Magazine magazine) {
+		super();
+		this.id = id;
+		this.title = title;
+		this.keywords = keywords;
+		this.abstractDescription = abstractDescription;
+		this.pdf = pdf;
+		this.coAuthors = coAuthors;
+		this.scientificArea = scientificArea;
+		this.author = author;
+		this.magazine = magazine;
 	}
 
 	public Long getId() {
