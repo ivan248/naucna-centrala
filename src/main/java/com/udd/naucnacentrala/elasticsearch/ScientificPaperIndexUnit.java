@@ -58,8 +58,6 @@ public class ScientificPaperIndexUnit {
 	@GeoPointField
 	@JsonProperty
 	private GeoPoint geo_point;
-
-	private double price;
 	
 	public ScientificPaperIndexUnit() {
 

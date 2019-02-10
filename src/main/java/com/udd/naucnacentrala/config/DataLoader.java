@@ -1,26 +1,31 @@
 package com.udd.naucnacentrala.config;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.pdfbox.pdfparser.PDFParser;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.io.RandomAccessFile;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.text.PDFTextStripper;
+import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.udd.naucnacentrala.domain.Authority;
 import com.udd.naucnacentrala.domain.Magazine;
 import com.udd.naucnacentrala.domain.PaymentRecord;
@@ -41,6 +46,8 @@ import com.udd.naucnacentrala.repository.ScientificAreaRepository;
 import com.udd.naucnacentrala.repository.ScientificPaperRepository;
 import com.udd.naucnacentrala.repository.SubscriptionRepository;
 import com.udd.naucnacentrala.repository.UserRepository;
+
+import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 @Component
 @SuppressWarnings("unused")
@@ -79,15 +86,8 @@ public class DataLoader implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		
-		RestTemplate restTemplate = new RestTemplate();
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-
-		HttpEntity<String> entity = new HttpEntity<String>("{\"index.mapping.depth.limit\": 30000}", headers);
-		restTemplate.put("http://localhost:9200/scientificpaper/_settings", entity);
-		System.out.println("success");
-		
-		insertIntoElasticSearch();
+		//insertIntoElasticSearch();
+		parsePDFandInsertIntoElasticSearchServer();
 		insertIntoScientificArea();
 		insertIntoUser();
 		insertIntoMagazine();
@@ -96,6 +96,117 @@ public class DataLoader implements ApplicationRunner {
 		insertIntoPaymentRecord();		
 	}
 
+private void parsePDFandInsertIntoElasticSearchServer() {
+		
+		Long id = 0l;
+		try {
+			File folder = new File("src/main/java/com/udd/naucnacentrala/elasticsearch");
+			File[] listOfFiles = folder.listFiles();
+			System.out.println("Parsing of PDF files...");
+			
+			for (File file : listOfFiles) {
+			    if (file.isFile() && file.getName().endsWith(".pdf")) {
+			        
+			    	ScientificPaperIndexUnit retVal = new ScientificPaperIndexUnit();
+					PDFParser parser = new PDFParser(new RandomAccessFile(file, "r"));
+					parser.parse();
+					String text = getText(parser);  
+					retVal.setPdfText(text);
+
+					// metadata extraction
+					PDDocument pdf = parser.getPDDocument();
+					PDDocumentInformation info = pdf.getDocumentInformation();
+
+					String title = "" + info.getTitle();
+					retVal.setTitle(title);
+					
+					String keywords = "" + info.getKeywords();
+					retVal.setKeywords(keywords);
+					
+					String author = "" + info.getAuthor();
+					retVal.setAuthor(author);
+					
+					String abstractDescription = "" + info.getSubject();
+					retVal.setAbstractDescription(abstractDescription);
+					
+					List<UserElasticSearchDTO> coAuthors = new ArrayList<UserElasticSearchDTO>();
+					
+					coAuthors.add(new UserElasticSearchDTO("ivan", "ivanovic", "ivan@gmail.com"));
+					coAuthors.add(new UserElasticSearchDTO("marko", "markovic", "marko@gmail.com"));
+
+					List<UserElasticSearchDTO> reviewers = new ArrayList<UserElasticSearchDTO>();
+					
+					reviewers.add(new UserElasticSearchDTO("milica", "krepic", "mil@gmail.com"));
+					reviewers.add(new UserElasticSearchDTO("nemanja", "ciric", "nem@gmail.com"));
+					
+					retVal.setId(id);
+					retVal.setCoAuthors(coAuthors);
+					retVal.setReviewers(reviewers);
+					retVal.setAbstractDescription("Priroda apstraktni opis");
+					retVal.setMagazine("National Geography");
+					retVal.setScientificArea("Priroda");
+					retVal.setLocation(new GeoPoint(45.254482, 19.864243));
+
+					id++;
+					
+					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+					String json = ow.writeValueAsString(retVal);
+					
+					XContentBuilder builder = jsonBuilder()
+						    .startObject()
+					        .field("id", id.toString())
+					        .field("title", title)
+					        .field("author", author)
+					        .field("abstractDescription", abstractDescription)
+					        .field("keywords", keywords)
+					        .field("pdfText", text)
+					        .field("magazine", "National")
+					        .field("scientificArea", "nauka")
+					    .endObject();
+					
+					elasticRepository.save(retVal);
+					
+//					est.getClient().prepareIndex("scientificpaper", "paper", id.toString())
+//					   .setSource(builder)
+//					   .get();
+					
+					pdf.close();
+			    }
+			}
+			
+			System.out.println("Parsing of PDF files succesfully finished.");
+			
+
+		} catch (Exception e) {
+			System.out.println("Greksa pri konvertovanju dokumenta u pdf");
+		}
+
+	}
+
+	public static String getText(PDFParser parser) {
+		try {
+			PDFTextStripper textStripper = new PDFTextStripper();
+			String text = textStripper.getText(parser.getPDDocument());
+			return text;
+		} catch (IOException e) {
+			System.out.println("Greksa pri konvertovanju dokumenta u pdf");
+		}
+		return null;
+	}
+	
+	public String getText(File file) {
+		try {
+			PDFParser parser = new PDFParser( new RandomAccessFile(file, "r"));
+			parser.parse();
+			PDFTextStripper textStripper = new PDFTextStripper();
+			String text = textStripper.getText(parser.getPDDocument());
+			return text;
+		} catch (IOException e) {
+			System.out.println("Greksa pri konvertovanju dokumenta u pdf");
+		}
+		return null;
+	}
+	
 	private void insertIntoElasticSearch() {
 	
 		

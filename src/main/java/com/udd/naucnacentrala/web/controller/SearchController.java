@@ -43,11 +43,11 @@ public class SearchController {
 		return new ResponseEntity(elasticSearchService.searchByMultipleOptionalFields(json), HttpStatus.OK);
 	}
 	
-	@PostMapping
-	@RequestMapping(value = "moreLikeThis")
-	public ResponseEntity<?> searchByMoreLikeThis(@RequestBody String similarText) {
+	@GetMapping
+	@RequestMapping(value = "moreLikeThis/{id}")
+	public ResponseEntity<?> searchByMoreLikeThis(@PathVariable("id") Long id) {
 		
-		return new ResponseEntity(elasticSearchService.searchByMoreLikeThis(similarText), HttpStatus.OK);
+		return new ResponseEntity(elasticSearchService.searchByMoreLikeThis(id), HttpStatus.OK);
 	}
 
 	@PostMapping

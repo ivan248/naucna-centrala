@@ -10,6 +10,6 @@ public interface ElasticSearchService {
 	List<ScientificPaperIndexUnit> searchByOneField(String field, String value);
 	List<ScientificPaperIndexUnit> searchByMultipleFields(Map<String, String> json);
 	List<ScientificPaperIndexUnit> searchByMultipleOptionalFields(Map<String, Object> json);
-	List<ScientificPaperIndexUnit> searchByMoreLikeThis(String similarText);
+	List<ScientificPaperIndexUnit> searchByMoreLikeThis(Long id);
 	List<ScientificPaperIndexUnit> searchByGeoPoint(Long longitude, Long latitude);
 }

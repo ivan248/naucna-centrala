@@ -21,12 +21,16 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.udd.naucnacentrala.elasticsearch.ScientificPaperIndexUnit;
+import com.udd.naucnacentrala.elasticsearch.repository.ScientificPaperElasticSearchRepository;
 
 @Service
 public class ElasticSearchServiceImpl implements ElasticSearchService {
 
 	@Autowired
 	private ElasticsearchTemplate elasticSearchTemplate;
+	
+	@Autowired
+	private ScientificPaperElasticSearchRepository elasticRepository;
 
 	@Override
 	public List<ScientificPaperIndexUnit> searchByOneField(String field, String value) {
@@ -108,8 +112,18 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 		List<String> listOfPhraseFields = null;
 
 		BoolQueryBuilder qb = QueryBuilders.boolQuery();
+		
+		System.out.println("Recieved json : " + json);
+		
 
-		if (json.get("optional") != null && json.get("phrase") == null) {
+			
+
+		
+		if(json.toString().equals("{}")) {
+			System.out.println("Empty json: " + "{}");
+			qb.should(QueryBuilders.matchAllQuery());
+			
+		} else if (json.get("optional") != null && json.get("phrase") == null) {
 			System.out.println("optional != null & phrase == null");
 
 			listOfOptionalFields = (List) json.get("optional");
@@ -244,18 +258,19 @@ public class ElasticSearchServiceImpl implements ElasticSearchService {
 	}
 
 	@Override
-	public List<ScientificPaperIndexUnit> searchByMoreLikeThis(String similarText) {
+	public List<ScientificPaperIndexUnit> searchByMoreLikeThis(Long id) {
 
 		List<ScientificPaperIndexUnit> resultsList = new ArrayList<ScientificPaperIndexUnit>();
-
+		String searchText = elasticRepository.findById(id).get().getPdfText();
+		
 		// tekst koji pretrazujem
-		String searchArray[] = { "Ovo" };
+		String searchArray[] = { searchText };
 
 		// polja koja pretrazujem
 		String fields[] = { "pdfText" };
 
 		// ovde zadam id dokumenta u odnosu na koji pretrazujem
-		MoreLikeThisQueryBuilder.Item[] items = { new MoreLikeThisQueryBuilder.Item("scientificpaper", "paper", "2") };
+		MoreLikeThisQueryBuilder.Item[] items = { new MoreLikeThisQueryBuilder.Item("scientificpaper", "paper", id.toString()) };
 
 		MoreLikeThisQueryBuilder qb = QueryBuilders.moreLikeThisQuery(fields, searchArray, items);
 		qb.minDocFreq(1);
