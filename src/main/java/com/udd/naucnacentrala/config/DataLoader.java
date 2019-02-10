@@ -88,12 +88,12 @@ public class DataLoader implements ApplicationRunner {
 		
 		//insertIntoElasticSearch();
 		parsePDFandInsertIntoElasticSearchServer();
-		insertIntoScientificArea();
-		insertIntoUser();
-		insertIntoMagazine();
-		insertIntoScientificPaper();
-		insertIntoSubscription();
-		insertIntoPaymentRecord();		
+//		insertIntoScientificArea();
+//		insertIntoUser();
+//		insertIntoMagazine();
+//		insertIntoScientificPaper();
+//		insertIntoSubscription();
+//		insertIntoPaymentRecord();		
 	}
 
 private void parsePDFandInsertIntoElasticSearchServer() {
@@ -165,6 +165,7 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 					    .endObject();
 					
 					elasticRepository.save(retVal);
+					scientificPaperRepository.save(retVal);
 					
 //					est.getClient().prepareIndex("scientificpaper", "paper", id.toString())
 //					   .setSource(builder)
@@ -325,44 +326,44 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 		
 	}
 
-	private void insertIntoScientificPaper() {
-		
-		ScientificPaper sp1 = new ScientificPaper();
-		
-		sp1.setAbstractDescription("Abstract description of the paper");
-		sp1.setKeywords("science,geometry");
-		sp1.setPdf("pdf1");
-		sp1.setTitle("Gauses trigonometry");
-		sp1.setAuthor(userRepository.getOne(1l));
-		sp1.setMagazine(magazineRepository.getOne(1l));
-		sp1.setScientificArea(scientificAreaRepository.getOne(1l));
-		
-		Set<User> coAuthors1 = new HashSet<User>();
-		
-		coAuthors1.add(userRepository.getOne(2l));
-		sp1.setCoAuthors(coAuthors1);
-		
-		scientificPaperRepository.save(sp1);
-		
-		ScientificPaper sp2 = new ScientificPaper();
-		
-		sp2.setAbstractDescription("Very abstract description");
-		sp2.setKeywords("lions,animals");
-		sp2.setPdf("pdf2");
-		sp2.setTitle("Lions in the wild");
-		sp2.setAuthor(userRepository.getOne(1l));
-		sp2.setMagazine(magazineRepository.getOne(2l));
-		sp2.setScientificArea(scientificAreaRepository.getOne(3l));
-		
-		Set<User> coAuthors2 = new HashSet<User>();
-		
-		coAuthors2.add(userRepository.getOne(2l));
-		sp2.setCoAuthors(coAuthors2);
-		
-		scientificPaperRepository.save(sp2);
-		
-		
-	}
+//	private void insertIntoScientificPaper() {
+//		
+//		ScientificPaper sp1 = new ScientificPaper();
+//		
+//		sp1.setAbstractDescription("Abstract description of the paper");
+//		sp1.setKeywords("science,geometry");
+//		sp1.setPdf("pdf1");
+//		sp1.setTitle("Gauses trigonometry");
+//		sp1.setAuthor(userRepository.getOne(1l));
+//		sp1.setMagazine(magazineRepository.getOne(1l));
+//		sp1.setScientificArea(scientificAreaRepository.getOne(1l));
+//		
+//		Set<User> coAuthors1 = new HashSet<User>();
+//		
+//		coAuthors1.add(userRepository.getOne(2l));
+//		sp1.setCoAuthors(coAuthors1);
+//		
+//		scientificPaperRepository.save(sp1);
+//		
+//		ScientificPaper sp2 = new ScientificPaper();
+//		
+//		sp2.setAbstractDescription("Very abstract description");
+//		sp2.setKeywords("lions,animals");
+//		sp2.setPdf("pdf2");
+//		sp2.setTitle("Lions in the wild");
+//		sp2.setAuthor(userRepository.getOne(1l));
+//		sp2.setMagazine(magazineRepository.getOne(2l));
+//		sp2.setScientificArea(scientificAreaRepository.getOne(3l));
+//		
+//		Set<User> coAuthors2 = new HashSet<User>();
+//		
+//		coAuthors2.add(userRepository.getOne(2l));
+//		sp2.setCoAuthors(coAuthors2);
+//		
+//		scientificPaperRepository.save(sp2);
+//		
+//		
+//	}
 
 	private void insertIntoUser() {
 		
