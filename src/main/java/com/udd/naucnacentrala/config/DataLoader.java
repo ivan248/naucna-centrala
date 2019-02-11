@@ -86,7 +86,7 @@ public class DataLoader implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		
-		//insertIntoElasticSearch();
+		
 		insertIntoScientificArea();
 		insertIntoUser();
 		insertIntoMagazine();
@@ -146,44 +146,35 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 					retVal.setId(id);
 					retVal.setCoAuthors(coAuthors);
 					retVal.setReviewers(reviewers);
-					retVal.setAbstractDescription("Priroda apstraktni opis");
-					retVal.setMagazine("National Geography");
-					retVal.setScientificArea("Priroda");
-					
-					
-					if(id.equals(0l)) // koordinate sajma
+					retVal.setMagazine(title);
+				
+					if(id.equals(0l)) { // koordinate sajma
 						retVal.setLocation(new GeoPoint(45.258188, 19.822986));
-					else if(id.equals(1l))  // koordinate hotela sajam 400 m daleko od sajma
+						retVal.setPrice(0d);
+						retVal.setScientificArea("Construction");
+						retVal.setOpenAccess(true);
+					} else if(id.equals(1l)) {  // koordinate hotela sajam 400 m daleko od sajma
 						retVal.setLocation(new GeoPoint(45.254282, 19.819469));
-					else if(id.equals(2l)) // koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
+						retVal.setPrice(0d);
+						retVal.setScientificArea("Construction");
+						retVal.setOpenAccess(true);
+					} else if(id.equals(2l)) { // koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
 						retVal.setLocation(new GeoPoint(45.254482, 19.864243));
-					else
+						retVal.setPrice(0d);
+						retVal.setScientificArea("Medicine");
+						retVal.setOpenAccess(true);
+					} else {
 						retVal.setLocation(new GeoPoint(50.258188, 19.822982));
+						retVal.setPrice(150d);
+						retVal.setScientificArea("Medicine");
+						retVal.setOpenAccess(false);
+					}
 					
 					id++;
-					
-					ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-					String json = ow.writeValueAsString(retVal);
-					
-					XContentBuilder builder = jsonBuilder()
-						    .startObject()
-					        .field("id", id.toString())
-					        .field("title", title)
-					        .field("author", author)
-					        .field("abstractDescription", abstractDescription)
-					        .field("keywords", keywords)
-					        .field("pdfText", text)
-					        .field("magazine", "National")
-					        .field("scientificArea", "nauka")
-					    .endObject();
 					
 					elasticRepository.save(retVal);
 					scientificPaperRepository.save(new ScientificPaper(retVal.getId(), retVal.getTitle(), retVal.getKeywords(),
 							retVal.getAbstractDescription(), retVal.getPdfText(), coAuthors1, scientificAreaRepository.getOne(1l), userRepository.getOne(1l), magazineRepository.getOne(1l)));
-					
-//					est.getClient().prepareIndex("scientificpaper", "paper", id.toString())
-//					   .setSource(builder)
-//					   .get();
 					
 					pdf.close();
 			    }
@@ -221,86 +212,6 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 			System.out.println("Greksa pri konvertovanju dokumenta u pdf");
 		}
 		return null;
-	}
-	
-	private void insertIntoElasticSearch() {
-	
-		
-
-		List<ScientificPaperIndexUnit> listOfPdfs = PDFHandler.getIndexUnit();
-		
-		List<UserElasticSearchDTO> coAuthors = new ArrayList<UserElasticSearchDTO>();
-		
-		coAuthors.add(new UserElasticSearchDTO("ivan", "ivanovic", "ivan@gmail.com"));
-		coAuthors.add(new UserElasticSearchDTO("marko", "markovic", "marko@gmail.com"));
-
-		List<UserElasticSearchDTO> reviewers = new ArrayList<UserElasticSearchDTO>();
-		
-		reviewers.add(new UserElasticSearchDTO("milica", "krepic", "mil@gmail.com"));
-		reviewers.add(new UserElasticSearchDTO("nemanja", "ciric", "nem@gmail.com"));
-		
-		listOfPdfs.get(0).setId(1l);
-		listOfPdfs.get(0).setCoAuthors(coAuthors);
-		listOfPdfs.get(0).setReviewers(reviewers);
-		listOfPdfs.get(0).setAbstractDescription("Priroda apstraktni opis");
-		listOfPdfs.get(0).setMagazine("National Geography");
-		listOfPdfs.get(0).setScientificArea("Priroda");
-		listOfPdfs.get(0).setLocation(new GeoPoint(45.254482, 19.864243));
-		//listOfPdfs.get(0).setPdfText("dsds");
-		
-		// koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
-		// ScientificPaperIndexUnit sp1 = new ScientificPaperIndexUnit(1l, "trouglovi", "marko", "dobar,zivotinje", pdfText, "National geography", "Priroda", "zivotinje", coAuthors, reviewers, new GeoPoint(45.254482, 19.864243));
-		
-
-		List<UserElasticSearchDTO> coAuthors2 = new ArrayList<UserElasticSearchDTO>();
-		
-		coAuthors2.add(new UserElasticSearchDTO("ivan", "ivanovic", "ivan@gmail.com"));
-		coAuthors2.add(new UserElasticSearchDTO("milko", "papic", "marko@gmail.com"));
-
-		List<UserElasticSearchDTO> reviewers2 = new ArrayList<UserElasticSearchDTO>();
-		
-		reviewers2.add(new UserElasticSearchDTO("srbo", "milic", "mil@gmail.com"));
-		reviewers2.add(new UserElasticSearchDTO("marija", "dejanic", "nem@gmail.com"));
-		
-		// koordinate hotela sajam 400 m daleko od sajma
-		ScientificPaperIndexUnit sp2 = new ScientificPaperIndexUnit(2l, "Trouglovi", "Marko", "komplikovano,uglovi", "Ovo je tekst drugog rada. Radi se o svemu i svacemu.", "Veneova zbirka", "Matematika", "Kosinusi", coAuthors2, reviewers2, new GeoPoint(45.254282, 19.819469));
-		
-		listOfPdfs.get(1).setId(2l);
-		listOfPdfs.get(1).setCoAuthors(coAuthors2);
-		listOfPdfs.get(1).setReviewers(reviewers2);
-		listOfPdfs.get(1).setAbstractDescription("Matematika apstraktni opis");
-		listOfPdfs.get(1).setMagazine("Veneova zbirka");
-		listOfPdfs.get(1).setScientificArea("Matematika");
-		listOfPdfs.get(1).setLocation(new GeoPoint(45.254282, 19.819469));
-		//listOfPdfs.get(1).setPdfText("dsds");
-		
-		
-//		for(int i=0; i<listOfPdfs.size(); i++) {
-//			
-//			Long id = new Long(i);
-//			id++;
-//			
-//			listOfPdfs.get(i).setId(id);
-//			
-//			System.out.println("Ispis iz dataloadera: " + listOfPdfs.get(i));
-//			
-//			elasticRepository.save(listOfPdfs.get(i));
-//			}
-			
-			ScientificPaperIndexUnit sp1 = listOfPdfs.get(0);
-			sp2 = listOfPdfs.get(1);
-			
-			
-			est.getClient().prepareIndex("scientificpaper", "paper", "1")
-			   .setSource(sp1, XContentType.JSON)
-			   .get();
-			
-			est.getClient().prepareIndex("scientificpaper", "paper", "2")
-			   .setSource(sp2, XContentType.JSON)
-			   .get();
-			
-	
-		
 	}
 
 	@SuppressWarnings("deprecation")

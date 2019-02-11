@@ -19,23 +19,23 @@ public class ScientificPaperIndexUnit {
 	@Id
 	private Long id;
 
-	@Field(type = FieldType.Text)
+	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
 	@JsonProperty
 	private String title;
 
-	@Field(type = FieldType.Keyword)
+	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
 	@JsonProperty
 	private String author;
 
-	@Field(type = FieldType.Text)
+	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
 	@JsonProperty
 	private String keywords;
 
-	@Field(type = FieldType.Text)
+	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
 	@JsonProperty
 	private String pdfText;
 
-	@Field(type = FieldType.Keyword)
+	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
 	@JsonProperty
 	private String magazine;
 
@@ -43,7 +43,7 @@ public class ScientificPaperIndexUnit {
 	@JsonProperty
 	private String abstractDescription;
 
-	@Field(type = FieldType.Keyword)
+	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
 	@JsonProperty
 	private String scientificArea;
 
@@ -59,13 +59,17 @@ public class ScientificPaperIndexUnit {
 	@JsonProperty
 	private GeoPoint geo_point;
 	
+	private Double price;
+	
+	private boolean openAccess;
+	
 	public ScientificPaperIndexUnit() {
 
 	}
 
-	public ScientificPaperIndexUnit(Long id, String title, String author, String keywords, String pdfText, String magazine,
-			String abstractDescription, String scientificArea, List<UserElasticSearchDTO> coAuthors,
-			List<UserElasticSearchDTO> reviewers, GeoPoint location) {
+	public ScientificPaperIndexUnit(Long id, String title, String author, String keywords, String pdfText,
+			String magazine, String abstractDescription, String scientificArea, List<UserElasticSearchDTO> coAuthors,
+			List<UserElasticSearchDTO> reviewers, GeoPoint geo_point, Double price, boolean openAccess) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -77,9 +81,11 @@ public class ScientificPaperIndexUnit {
 		this.scientificArea = scientificArea;
 		this.coAuthors = coAuthors;
 		this.reviewers = reviewers;
-		this.geo_point = location;
+		this.geo_point = geo_point;
+		this.price = price;
+		this.openAccess = openAccess;
 	}
-	
+
 	public void setId(Long id) {
 		this.id = id;
 	}
@@ -167,13 +173,29 @@ public class ScientificPaperIndexUnit {
 	public void setLocation(GeoPoint location) {
 		this.geo_point = location;
 	}
+	
+	public Double getPrice() {
+		return price;
+	}
+
+	public void setPrice(Double price) {
+		this.price = price;
+	}
 
 	@Override
 	public String toString() {
-		return "ScientificPaperDTO [id=" + id + ", title=" + title + ", author=" + author + ", keywords=" + keywords
-				+ ", pdfText=" + pdfText + ", magazine=" + magazine + ", abstractDescription=" + abstractDescription
-				+ ", scientificArea=" + scientificArea + ", coAuthors=" + coAuthors + ", reviewers=" + reviewers
-				+ ", location=" + geo_point + "]";
+		return "ScientificPaperIndexUnit [id=" + id + ", title=" + title + ", author=" + author + ", keywords="
+				+ keywords + ", pdfText=" + pdfText + ", magazine=" + magazine + ", abstractDescription="
+				+ abstractDescription + ", scientificArea=" + scientificArea + ", coAuthors=" + coAuthors
+				+ ", reviewers=" + reviewers + ", geo_point=" + geo_point + ", price=" + price + "]";
+	}
+
+	public boolean isOpenAccess() {
+		return openAccess;
+	}
+
+	public void setOpenAccess(boolean openAccess) {
+		this.openAccess = openAccess;
 	}
 
 }
