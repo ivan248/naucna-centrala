@@ -119,7 +119,7 @@
       <bpmn:outgoing>SequenceFlow_0kcxfdq</bpmn:outgoing>
     </bpmn:userTask>
     <bpmn:sequenceFlow id="SequenceFlow_0kcxfdq" sourceRef="Task_1knxngc" targetRef="Task_10zo20g" />
-    <bpmn:sequenceFlow id="SequenceFlow_0k38rhg" sourceRef="Task_1mm13vi" targetRef="Task_1csuv0r">
+    <bpmn:sequenceFlow id="SequenceFlow_0k38rhg" name="Approve" sourceRef="Task_1mm13vi" targetRef="Task_1csuv0r">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${paperApproved=="true"}</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:serviceTask id="Task_1csuv0r" name="Chose editor of scientific field" camunda:class="com.udd.naucnacentrala.delegate.ChoseEditorOfScientificField">
@@ -395,6 +395,9 @@
       <bpmndi:BPMNEdge id="SequenceFlow_0k38rhg_di" bpmnElement="SequenceFlow_0k38rhg">
         <di:waypoint x="830" y="638" />
         <di:waypoint x="732" y="638" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="761" y="620" width="40" height="14" />
+        </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="ServiceTask_1yygn9e_di" bpmnElement="Task_1csuv0r">
         <dc:Bounds x="632" y="598" width="100" height="80" />
