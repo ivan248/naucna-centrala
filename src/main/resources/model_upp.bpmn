@@ -54,7 +54,7 @@
         <camunda:formData>
           <camunda:formField id="title" label="Title" type="string" />
           <camunda:formField id="abstractDescription" label="Abstract description" type="string" />
-          <camunda:formField id="scientificAreaId" label="Scientific area " type="long" />
+          <camunda:formField id="scientificArea" label="Scientific area " type="string" />
           <camunda:formField id="keywords" label="Keywords" type="string" />
           <camunda:formField id="coauthors" label="Coauthors" type="string" />
         </camunda:formData>
@@ -164,6 +164,15 @@
     <bpmn:sequenceFlow id="SequenceFlow_0obmu8s" sourceRef="Task_0bjguwm" targetRef="Task_0muf684" />
     <bpmn:sequenceFlow id="SequenceFlow_1ysecy8" sourceRef="Task_0nz8gzv" targetRef="Task_0gzvxe7" />
     <bpmn:userTask id="Task_0gzvxe7" name="Scientific paper evalutation" camunda:assignee="${scientificAreaEditorId}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="bigCorrection" label="Big correction" type="boolean" />
+          <camunda:formField id="smallCorrection" label="Small correction" type="boolean" />
+          <camunda:formField id="refused" label="Refused" type="boolean" />
+          <camunda:formField id="accepted" label="Accepted" type="boolean" />
+          <camunda:formField id="anotherReview" label="Another Review" type="boolean" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_1ysecy8</bpmn:incoming>
       <bpmn:incoming>SequenceFlow_1566x1q</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1bxkt1c</bpmn:outgoing>
@@ -212,6 +221,12 @@
     </bpmn:sendTask>
     <bpmn:sequenceFlow id="SequenceFlow_0dwar74" sourceRef="Task_1uqe7y8" targetRef="Task_0k174il" />
     <bpmn:userTask id="Task_0k174il" name="Correction" camunda:assignee="${authorId}">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="content" label="Content" type="string" />
+          <camunda:formField id="correctionComment" label="Correction comment" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
       <bpmn:incoming>SequenceFlow_0dwar74</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1566x1q</bpmn:outgoing>
       <bpmn:outgoing>SequenceFlow_10lcgay</bpmn:outgoing>

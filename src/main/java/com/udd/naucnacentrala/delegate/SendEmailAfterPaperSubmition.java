@@ -34,7 +34,7 @@ public class SendEmailAfterPaperSubmition implements JavaDelegate {
 		SimpleMailMessage authorEmail = new SimpleMailMessage();
 		authorEmail.setTo(author.getEmail());
 		authorEmail.setSubject("New article submission notification email");
-		authorEmail.setText("Congratalations! You succesfully submitted an article. Please wait for a review.");
+		authorEmail.setText("Congratulations! You succesfully submitted an article. Please wait for a review.");
 		authorEmail.setFrom("noreply@domain.com");
 
 		emailService.sendEmail(authorEmail);

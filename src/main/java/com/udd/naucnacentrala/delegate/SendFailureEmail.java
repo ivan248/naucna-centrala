@@ -3,6 +3,7 @@ package com.udd.naucnacentrala.delegate;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 
 import com.udd.naucnacentrala.domain.User;
@@ -26,8 +27,12 @@ public class SendFailureEmail implements JavaDelegate {
     	User author = userService.findById(authorId);
     	
     	
-//    	emailService.sendEmail(author.getEmail(),
-//				"New article submitted",
-//				"Your article has been submitted. Please wait for a review.");
+    	SimpleMailMessage authorEmail = new SimpleMailMessage();
+		authorEmail.setTo(author.getEmail());
+		authorEmail.setSubject("New article failure in submission notification email");
+		authorEmail.setText("Greetings, We are sorry, but your scientific paper has been rejected.");
+		authorEmail.setFrom("noreply@domain.com");
+
+		emailService.sendEmail(authorEmail);
 	}
 }

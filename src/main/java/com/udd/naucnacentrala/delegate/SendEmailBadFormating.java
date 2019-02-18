@@ -3,6 +3,7 @@ package com.udd.naucnacentrala.delegate;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 
 import com.udd.naucnacentrala.domain.User;
@@ -25,9 +26,12 @@ public class SendEmailBadFormating implements JavaDelegate {
     	System.out.println("SendEmailBadFormating sending bad formating error email to author with ID: " + authorId);
     	User author = userService.findById(authorId);
     	
-    	
-//    	emailService.sendEmail(author.getEmail(),
-//				"New article submitted",
-//				"Your article has been submitted. Please wait for a review.");
+    	SimpleMailMessage authorEmail = new SimpleMailMessage();
+		authorEmail.setTo(author.getEmail());
+		authorEmail.setSubject("Bad formating notification email");
+		authorEmail.setText("Dear Sir/Madam, Formating of your scientific paper is bad, please fix it and resubmit your paper.");
+		authorEmail.setFrom("noreply@domain.com");
+
+		emailService.sendEmail(authorEmail);
 	}
 }

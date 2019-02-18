@@ -67,6 +67,7 @@ public class MagazineController {
 		variables.put("magazineId", magazine.getId());
 		variables.put("authorId", author.getId().toString());
 		variables.put("mainEditorId", magazine.getMainEditor().getId().toString());
+		variables.put("magazineTitle", magazine.getName());
 		runtimeService.startProcessInstanceByKey("publishScientificPaper", variables);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
