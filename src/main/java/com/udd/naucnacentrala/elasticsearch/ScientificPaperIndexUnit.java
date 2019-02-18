@@ -19,23 +19,23 @@ public class ScientificPaperIndexUnit {
 	@Id
 	private Long id;
 
-	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
+	@Field(type = FieldType.Text)
 	@JsonProperty
 	private String title;
 
-	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
+	@Field(type = FieldType.Text)
 	@JsonProperty
 	private String author;
 
-	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
+	@Field(type = FieldType.Text)
 	@JsonProperty
 	private String keywords;
 
-	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
+	@Field(type = FieldType.Text)
 	@JsonProperty
 	private String pdfText;
 
-	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
+	@Field(type = FieldType.Text)
 	@JsonProperty
 	private String magazine;
 
@@ -43,7 +43,7 @@ public class ScientificPaperIndexUnit {
 	@JsonProperty
 	private String abstractDescription;
 
-	@Field(type = FieldType.Text, analyzer = "serbian-analyzer")
+	@Field(type = FieldType.Text)
 	@JsonProperty
 	private String scientificArea;
 

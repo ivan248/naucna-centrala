@@ -3,6 +3,7 @@ package com.udd.naucnacentrala.delegate;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Component;
 
 import com.udd.naucnacentrala.domain.User;
@@ -30,13 +31,22 @@ public class SendEmailAfterPaperSubmition implements JavaDelegate {
     	System.out.println("SendEmailAfterPaperSubmition sending email to main editor with ID: " + mainEditorId);
     	User mainEditor = userService.findById(mainEditorId);
     	
+		SimpleMailMessage authorEmail = new SimpleMailMessage();
+		authorEmail.setTo(author.getEmail());
+		authorEmail.setSubject("New article submission notification email");
+		authorEmail.setText("Congratalations! You succesfully submitted an article. Please wait for a review.");
+		authorEmail.setFrom("noreply@domain.com");
+
+		emailService.sendEmail(authorEmail);
+		
+		SimpleMailMessage MainEditorEmail = new SimpleMailMessage();
+		MainEditorEmail.setTo(mainEditor.getEmail());
+		MainEditorEmail.setSubject("\"New article submission notification email");
+		MainEditorEmail.setText("There is a new article in the Naucna centrala. Please login to see it.");
+		MainEditorEmail.setFrom("noreply@domain.com");
+
+		emailService.sendEmail(MainEditorEmail);
     	
-//    	emailService.sendEmail(author.getEmail(),
-//				"New article submitted",
-//				"Your article has been submitted. Please wait for a review.");
-//    	emailService.sendEmail(mainEditor.getEmail(),
-//				"New article submitted",
-//				"New article has been submitted, login to Scientific Center to view it.");
 	}
     
 }
