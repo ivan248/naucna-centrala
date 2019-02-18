@@ -8,24 +8,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.pdfbox.pdfparser.PDFParser;
-import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.io.RandomAccessFile;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
+import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.udd.naucnacentrala.domain.Authority;
 import com.udd.naucnacentrala.domain.Magazine;
 import com.udd.naucnacentrala.domain.PaymentRecord;
@@ -35,10 +27,6 @@ import com.udd.naucnacentrala.domain.ScientificPaper;
 import com.udd.naucnacentrala.domain.Subscription;
 import com.udd.naucnacentrala.domain.User;
 import com.udd.naucnacentrala.domain.UserRole;
-import com.udd.naucnacentrala.elasticsearch.PDFHandler;
-import com.udd.naucnacentrala.elasticsearch.ScientificPaperIndexUnit;
-import com.udd.naucnacentrala.elasticsearch.UserElasticSearchDTO;
-import com.udd.naucnacentrala.elasticsearch.repository.ScientificPaperElasticSearchRepository;
 import com.udd.naucnacentrala.repository.AuthoritiesRepository;
 import com.udd.naucnacentrala.repository.MagazineRepository;
 import com.udd.naucnacentrala.repository.PaymentRecordRepository;
@@ -46,8 +34,6 @@ import com.udd.naucnacentrala.repository.ScientificAreaRepository;
 import com.udd.naucnacentrala.repository.ScientificPaperRepository;
 import com.udd.naucnacentrala.repository.SubscriptionRepository;
 import com.udd.naucnacentrala.repository.UserRepository;
-
-import static org.elasticsearch.common.xcontent.XContentFactory.*;
 
 @Component
 @SuppressWarnings("unused")
@@ -74,11 +60,11 @@ public class DataLoader implements ApplicationRunner {
 	@Autowired
 	private AuthoritiesRepository authoritiesRepository;
 	
-	@Autowired
-	private ScientificPaperElasticSearchRepository elasticRepository;
-	
-	@Autowired
-	private ElasticsearchTemplate est;
+//	@Autowired
+//	private ScientificPaperElasticSearchRepository elasticRepository;
+//	
+//	@Autowired
+//	private ElasticsearchTemplate est;
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -90,105 +76,105 @@ public class DataLoader implements ApplicationRunner {
 		insertIntoScientificArea();
 		insertIntoUser();
 		insertIntoMagazine();
-		parsePDFandInsertIntoElasticSearchServer();
-//		insertIntoScientificPaper();
-//		insertIntoSubscription();
+		insertIntoScientificPaper();
+		insertIntoSubscription();
 //		insertIntoPaymentRecord();		
+//      parsePDFandInsertIntoElasticSearchServer();
 	}
 
-private void parsePDFandInsertIntoElasticSearchServer() {
-		
-		Long id = 0l;
-		try {
-			File folder = new File("src/main/java/com/udd/naucnacentrala/elasticsearch");
-			File[] listOfFiles = folder.listFiles();
-			System.out.println("Parsing of PDF files...");
-			
-			for (File file : listOfFiles) {
-			    if (file.isFile() && file.getName().endsWith(".pdf")) {
-			        
-			    	ScientificPaperIndexUnit retVal = new ScientificPaperIndexUnit();
-					PDFParser parser = new PDFParser(new RandomAccessFile(file, "r"));
-					parser.parse();
-					String text = getText(parser);  
-					retVal.setPdfText(text);
-
-					// metadata extraction
-					PDDocument pdf = parser.getPDDocument();
-					PDDocumentInformation info = pdf.getDocumentInformation();
-
-					String title = "" + info.getTitle();
-					retVal.setTitle(title);
-					
-					String keywords = "" + info.getKeywords();
-					retVal.setKeywords(keywords);
-					
-					String author = "" + info.getAuthor();
-					retVal.setAuthor(author);
-					
-					String abstractDescription = "" + info.getSubject();
-					retVal.setAbstractDescription(abstractDescription);
-					
-					List<UserElasticSearchDTO> coAuthors = new ArrayList<UserElasticSearchDTO>();
-					
-					coAuthors.add(new UserElasticSearchDTO("ivan", "ivanovic", "ivan@gmail.com"));
-					coAuthors.add(new UserElasticSearchDTO("marko", "markovic", "marko@gmail.com"));
-
-					List<UserElasticSearchDTO> reviewers = new ArrayList<UserElasticSearchDTO>();
-					
-					reviewers.add(new UserElasticSearchDTO("milica", "krepic", "mil@gmail.com"));
-					reviewers.add(new UserElasticSearchDTO("nemanja", "ciric", "nem@gmail.com"));
-					
-					Set<User> coAuthors1 = new HashSet<User>();
-					
-					coAuthors1.add(userRepository.getOne(2l));
-					
-					retVal.setId(id);
-					retVal.setCoAuthors(coAuthors);
-					retVal.setReviewers(reviewers);
-					retVal.setMagazine(title);
-				
-					if(id.equals(0l)) { // koordinate sajma
-						retVal.setLocation(new GeoPoint(45.258188, 19.822986));
-						retVal.setPrice(0d);
-						retVal.setScientificArea("Construction");
-						retVal.setOpenAccess(true);
-					} else if(id.equals(1l)) {  // koordinate hotela sajam 400 m daleko od sajma
-						retVal.setLocation(new GeoPoint(45.254282, 19.819469));
-						retVal.setPrice(0d);
-						retVal.setScientificArea("Construction");
-						retVal.setOpenAccess(true);
-					} else if(id.equals(2l)) { // koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
-						retVal.setLocation(new GeoPoint(45.254482, 19.864243));
-						retVal.setPrice(0d);
-						retVal.setScientificArea("Medicine");
-						retVal.setOpenAccess(true);
-					} else {
-						retVal.setLocation(new GeoPoint(50.258188, 19.822982));
-						retVal.setPrice(150d);
-						retVal.setScientificArea("Medicine");
-						retVal.setOpenAccess(false);
-					}
-					
-					id++;
-					
-					elasticRepository.save(retVal);
-					scientificPaperRepository.save(new ScientificPaper(retVal.getId(), retVal.getTitle(), retVal.getKeywords(),
-							retVal.getAbstractDescription(), retVal.getPdfText(), coAuthors1, scientificAreaRepository.getOne(1l), userRepository.getOne(1l), magazineRepository.getOne(1l)));
-					
-					pdf.close();
-			    }
-			}
-			
-			System.out.println("Parsing of PDF files succesfully finished.");
-			
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println("Greksa pri konvertovanju dokumenta u pdf");
-		}
-
-	}
+//private void parsePDFandInsertIntoElasticSearchServer() {
+//		
+//		Long id = 0l;
+//		try {
+//			File folder = new File("src/main/java/com/udd/naucnacentrala/elasticsearch");
+//			File[] listOfFiles = folder.listFiles();
+//			System.out.println("Parsing of PDF files...");
+//			
+//			for (File file : listOfFiles) {
+//			    if (file.isFile() && file.getName().endsWith(".pdf")) {
+//			        
+//			    	ScientificPaperIndexUnit retVal = new ScientificPaperIndexUnit();
+//					PDFParser parser = new PDFParser(new RandomAccessFile(file, "r"));
+//					parser.parse();
+//					String text = getText(parser);  
+//					retVal.setPdfText(text);
+//
+//					// metadata extraction
+//					PDDocument pdf = parser.getPDDocument();
+//					PDDocumentInformation info = pdf.getDocumentInformation();
+//
+//					String title = "" + info.getTitle();
+//					retVal.setTitle(title);
+//					
+//					String keywords = "" + info.getKeywords();
+//					retVal.setKeywords(keywords);
+//					
+//					String author = "" + info.getAuthor();
+//					retVal.setAuthor(author);
+//					
+//					String abstractDescription = "" + info.getSubject();
+//					retVal.setAbstractDescription(abstractDescription);
+//					
+//					List<UserElasticSearchDTO> coAuthors = new ArrayList<UserElasticSearchDTO>();
+//					
+//					coAuthors.add(new UserElasticSearchDTO("ivan", "ivanovic", "ivan@gmail.com"));
+//					coAuthors.add(new UserElasticSearchDTO("marko", "markovic", "marko@gmail.com"));
+//
+//					List<UserElasticSearchDTO> reviewers = new ArrayList<UserElasticSearchDTO>();
+//					
+//					reviewers.add(new UserElasticSearchDTO("milica", "krepic", "mil@gmail.com"));
+//					reviewers.add(new UserElasticSearchDTO("nemanja", "ciric", "nem@gmail.com"));
+//					
+//					Set<User> coAuthors1 = new HashSet<User>();
+//					
+//					coAuthors1.add(userRepository.getOne(2l));
+//					
+//					retVal.setId(id);
+//					retVal.setCoAuthors(coAuthors);
+//					retVal.setReviewers(reviewers);
+//					retVal.setMagazine(title);
+//				
+//					if(id.equals(0l)) { // koordinate sajma
+//						retVal.setLocation(new GeoPoint(45.258188, 19.822986));
+//						retVal.setPrice(0d);
+//						retVal.setScientificArea("Construction");
+//						retVal.setOpenAccess(true);
+//					} else if(id.equals(1l)) {  // koordinate hotela sajam 400 m daleko od sajma
+//						retVal.setLocation(new GeoPoint(45.254282, 19.819469));
+//						retVal.setPrice(0d);
+//						retVal.setScientificArea("Construction");
+//						retVal.setOpenAccess(true);
+//					} else if(id.equals(2l)) { // koordinate beogradske kapije na petrovaradinu 3km daleko od sajma
+//						retVal.setLocation(new GeoPoint(45.254482, 19.864243));
+//						retVal.setPrice(0d);
+//						retVal.setScientificArea("Medicine");
+//						retVal.setOpenAccess(true);
+//					} else {
+//						retVal.setLocation(new GeoPoint(50.258188, 19.822982));
+//						retVal.setPrice(150d);
+//						retVal.setScientificArea("Medicine");
+//						retVal.setOpenAccess(false);
+//					}
+//					
+//					id++;
+//					
+//					elasticRepository.save(retVal);
+//					scientificPaperRepository.save(new ScientificPaper(retVal.getId(), retVal.getTitle(), retVal.getKeywords(),
+//							retVal.getAbstractDescription(), retVal.getPdfText(), coAuthors1, scientificAreaRepository.getOne(1l), userRepository.getOne(1l), magazineRepository.getOne(1l)));
+//					
+//					pdf.close();
+//			    }
+//			}
+//			
+//			System.out.println("Parsing of PDF files succesfully finished.");
+//			
+//
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			System.out.println("Greksa pri konvertovanju dokumenta u pdf");
+//		}
+//
+//	}
 
 	public static String getText(PDFParser parser) {
 		try {
@@ -252,44 +238,44 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 		
 	}
 
-//	private void insertIntoScientificPaper() {
-//		
-//		ScientificPaper sp1 = new ScientificPaper();
-//		
-//		sp1.setAbstractDescription("Abstract description of the paper");
-//		sp1.setKeywords("science,geometry");
-//		sp1.setPdf("pdf1");
-//		sp1.setTitle("Gauses trigonometry");
-//		sp1.setAuthor(userRepository.getOne(1l));
-//		sp1.setMagazine(magazineRepository.getOne(1l));
-//		sp1.setScientificArea(scientificAreaRepository.getOne(1l));
-//		
-//		Set<User> coAuthors1 = new HashSet<User>();
-//		
-//		coAuthors1.add(userRepository.getOne(2l));
-//		sp1.setCoAuthors(coAuthors1);
-//		
-//		scientificPaperRepository.save(sp1);
-//		
-//		ScientificPaper sp2 = new ScientificPaper();
-//		
-//		sp2.setAbstractDescription("Very abstract description");
-//		sp2.setKeywords("lions,animals");
-//		sp2.setPdf("pdf2");
-//		sp2.setTitle("Lions in the wild");
-//		sp2.setAuthor(userRepository.getOne(1l));
-//		sp2.setMagazine(magazineRepository.getOne(2l));
-//		sp2.setScientificArea(scientificAreaRepository.getOne(3l));
-//		
-//		Set<User> coAuthors2 = new HashSet<User>();
-//		
-//		coAuthors2.add(userRepository.getOne(2l));
-//		sp2.setCoAuthors(coAuthors2);
-//		
-//		scientificPaperRepository.save(sp2);
-//		
-//		
-//	}
+	private void insertIntoScientificPaper() {
+		
+		ScientificPaper sp1 = new ScientificPaper();
+		
+		sp1.setAbstractDescription("Abstract description of the paper");
+		sp1.setKeywords("science,geometry");
+		sp1.setPdf("pdf1");
+		sp1.setTitle("Gauses trigonometry");
+		sp1.setAuthor(userRepository.getOne(1l));
+		sp1.setMagazine(magazineRepository.getOne(1l));
+		sp1.setScientificArea(scientificAreaRepository.getOne(1l));
+		
+		Set<User> coAuthors1 = new HashSet<User>();
+		
+		coAuthors1.add(userRepository.getOne(2l));
+		sp1.setCoAuthors(coAuthors1);
+		
+		scientificPaperRepository.save(sp1);
+		
+		ScientificPaper sp2 = new ScientificPaper();
+		
+		sp2.setAbstractDescription("Very abstract description");
+		sp2.setKeywords("lions,animals");
+		sp2.setPdf("pdf2");
+		sp2.setTitle("Lions in the wild");
+		sp2.setAuthor(userRepository.getOne(1l));
+		sp2.setMagazine(magazineRepository.getOne(2l));
+		sp2.setScientificArea(scientificAreaRepository.getOne(3l));
+		
+		Set<User> coAuthors2 = new HashSet<User>();
+		
+		coAuthors2.add(userRepository.getOne(2l));
+		sp2.setCoAuthors(coAuthors2);
+		
+		scientificPaperRepository.save(sp2);
+		
+		
+	}
 
 	private void insertIntoUser() {
 		
@@ -298,7 +284,7 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 		User u1 = new User();
 		
 		u1.setCity("Smederevo");
-		u1.setEmail("ivan@gmail.com");
+		u1.setEmail("ivan248959@gmail.com");
 		u1.setPassword(passwordEncoder1.encode("123"));
 		u1.setFirstName("Ivan");
 		u1.setLastName("Autor");
@@ -438,10 +424,9 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 		
 		m1.setReviewers(reviewers1);
 		
-		Set<ScientificArea> scientificAreas1 = new HashSet<ScientificArea>();
+		List<ScientificArea> scientificAreas1 = new ArrayList<ScientificArea>();
 		
 		scientificAreas1.add(scientificAreaRepository.getOne((long)1));
-		scientificAreas1.add(scientificAreaRepository.getOne((long)2));
 		
 		m1.setScientificAreas(scientificAreas1);
 		
@@ -465,12 +450,11 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 		
 		Set<User> reviewers2 = new HashSet<User>();
 		Set<User> editorsOfSpecialAreas2 = new HashSet<User>();
-		Set<ScientificArea> scientificAreas2 = new HashSet<ScientificArea>();
+		List<ScientificArea> scientificAreas2 = new ArrayList<ScientificArea>();
 		
 		reviewers2.add(userRepository.getOne((long)4));
 		editorsOfSpecialAreas2.add(userRepository.getOne((long)3));
 		scientificAreas2.add(scientificAreaRepository.getOne((long)2));
-		scientificAreas2.add(scientificAreaRepository.getOne((long)3));
 		
 		m2.setReviewers(reviewers2);
 		m2.setScientificAreas(scientificAreas2);
@@ -487,8 +471,11 @@ private void parsePDFandInsertIntoElasticSearchServer() {
 		ScientificArea sa3 = new ScientificArea();
 		
 		sa1.setScientificAreaName("Science");
+		sa1.setEditor(3l);
 		sa2.setScientificAreaName("Philosophy");
+		sa2.setEditor(null);
 		sa3.setScientificAreaName("Nature");
+		sa3.setEditor(null);
 		
 		scientificAreaRepository.save(sa1);
 		scientificAreaRepository.save(sa2);

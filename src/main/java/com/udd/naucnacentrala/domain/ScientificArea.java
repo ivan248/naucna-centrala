@@ -20,6 +20,8 @@ public class ScientificArea {
 	@NotEmpty
 	private String scientificAreaName;
 	
+	private Long editor;
+	
 	public ScientificArea() {
 		
 	}
@@ -35,6 +37,13 @@ public class ScientificArea {
 	public void setScientificAreaName(String scientificAreaName) {
 		this.scientificAreaName = scientificAreaName;
 	}
-	
+
+	public Long getEditor() {
+		return editor;
+	}
+
+	public void setEditor(Long editor) {
+		this.editor = editor;
+	}
 	
 }

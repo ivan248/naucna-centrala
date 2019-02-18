@@ -25,6 +25,10 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 		<!--  added for security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -40,6 +44,11 @@
             <artifactId>spring-boot-starter-data-rest</artifactId>
         </dependency>
        	<!--  added for security -->
+       	<dependency>
+			<groupId>org.camunda.bpm.springboot</groupId>
+			<artifactId>camunda-bpm-spring-boot-starter</artifactId>
+			<version>3.2.0</version>
+		</dependency>
        	<!-- added for elastic search --> 
 <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-elasticsearch -->
 		<dependency>

@@ -8,4 +8,5 @@ import com.udd.naucnacentrala.domain.Magazine;
 @Repository
 public interface MagazineRepository extends JpaRepository<Magazine, Long> {
 
+	Magazine findOneById(Long id);
 }

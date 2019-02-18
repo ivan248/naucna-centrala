@@ -1,5 +1,6 @@
 package com.udd.naucnacentrala.domain;
 
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -32,7 +33,7 @@ public class Magazine {
 	private int ISSN;
 	
 	@ManyToMany
-	private Set<ScientificArea> scientificAreas;
+	private List<ScientificArea> scientificAreas;
 	
 	private PaymentType paymentType;
 	
@@ -85,11 +86,11 @@ public class Magazine {
 		ISSN = iSSN;
 	}
 
-	public Set<ScientificArea> getScientificAreas() {
+	public List<ScientificArea> getScientificAreas() {
 		return scientificAreas;
 	}
 
-	public void setScientificAreas(Set<ScientificArea> scientificAreas) {
+	public void setScientificAreas(List<ScientificArea> scientificAreas) {
 		this.scientificAreas = scientificAreas;
 	}
 

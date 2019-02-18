@@ -20,4 +20,9 @@ public class MagazineServiceImpl implements MagazineService {
 		return magazineRepository.findAll();
 	}
 
+	@Override
+	public Magazine findOne(Long magazineId) {
+		return magazineRepository.findById(magazineId).get();
+	}
+
 }

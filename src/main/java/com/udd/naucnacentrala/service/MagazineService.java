@@ -7,4 +7,5 @@ import com.udd.naucnacentrala.domain.Magazine;
 public interface MagazineService {
 
 	List<Magazine> getAll();
+	Magazine findOne(Long magazineId);
 }
