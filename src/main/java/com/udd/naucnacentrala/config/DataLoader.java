@@ -471,7 +471,7 @@ public class DataLoader implements ApplicationRunner {
 		ScientificArea sa3 = new ScientificArea();
 		
 		sa1.setScientificAreaName("Science");
-		sa1.setEditor(3l);
+		sa1.setEditor(2l);
 		sa2.setScientificAreaName("Philosophy");
 		sa2.setEditor(null);
 		sa3.setScientificAreaName("Nature");

@@ -5,9 +5,9 @@ import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.udd.naucnacentrala.config.EmailUtils;
 import com.udd.naucnacentrala.domain.User;
 import com.udd.naucnacentrala.service.UserService;
+import com.udd.naucnacentrala.service.impl.EmailService;
 
 @Component
 public class SendEmailBadFormating implements JavaDelegate {
@@ -16,13 +16,13 @@ public class SendEmailBadFormating implements JavaDelegate {
 	private UserService userService;
 	
 	@Autowired
-	private EmailUtils emailService;
+	private EmailService emailService;
  	
     @Override
     public void execute(DelegateExecution execution) throws Exception {
     	
     	Long authorId = Long.parseLong((String)execution.getVariable("authorId"));
-    	System.out.println("SendFailureEmail sending failure email to author with ID: " + authorId);
+    	System.out.println("SendEmailBadFormating sending bad formating error email to author with ID: " + authorId);
     	User author = userService.findById(authorId);
     	
     	

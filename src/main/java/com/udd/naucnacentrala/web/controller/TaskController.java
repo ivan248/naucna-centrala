@@ -28,7 +28,7 @@ import com.udd.naucnacentrala.web.dto.FormFieldsDto;
 import com.udd.naucnacentrala.web.dto.TaskDto;
 
 @RestController
-@RequestMapping(value="/api/task")
+@RequestMapping(value = "/api/task")
 public class TaskController {
 
 	@Autowired
@@ -36,68 +36,90 @@ public class TaskController {
 
 	@Autowired
 	private RuntimeService runtimeService;
-	
+
 	@Autowired
 	TaskService taskService;
-	
+
 	@Autowired
 	FormService formService;
-	
+
 	@GetMapping("/getAll")
 	public ResponseEntity<?> getAllTasks(Principal principal) {
 		User user = userService.findByEmail(principal.getName());
 
-		List<Task> tasks = taskService.createTaskQuery()
-			.active()
-			.taskAssignee(user.getId().toString())
-			.list();
+		List<Task> tasks = taskService.createTaskQuery().active().taskAssignee(user.getId().toString()).list();
 
 		List<TaskDto> result = new ArrayList<>();
-		for(Task task : tasks) {
-			result.add(new TaskDto(
-					task.getId(),
-					task.getName(),
+		for (Task task : tasks) {
+			result.add(new TaskDto(task.getId(), task.getName(),
 					runtimeService.getVariable(task.getProcessInstanceId(), "magazineId").toString(),
-					(String)runtimeService.getVariable(task.getProcessInstanceId(), "magazineTitle")));
+					(String) runtimeService.getVariable(task.getProcessInstanceId(), "magazineTitle")));
 		}
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
-	
-    @GetMapping(path = "/{taskId}")
-    public ResponseEntity<?> getTask(
-			@PathVariable String taskId) {
-    	System.out.println("TaskController.getTask...Getting the form data for the task with id: " + taskId);
-        TaskFormData tfd = formService.getTaskFormData(taskId);
 
-        List<FormField> properties = tfd.getFormFields();
+	@GetMapping(path = "/{taskId}")
+	public ResponseEntity<?> getTask(@PathVariable String taskId) {
+		System.out.println("TaskController.getTask...Getting the form data for the task with id: " + taskId);
+		TaskFormData tfd = formService.getTaskFormData(taskId);
 
-        return new ResponseEntity<>(new FormFieldsDto(taskId, "publishScientificPaper", properties), HttpStatus.OK);
-    }
-    
-    @PostMapping(path = "executeTask/{taskId}")
-    public ResponseEntity<?> executeTask(@RequestBody Map<String, Object> form,
-			@PathVariable String taskId) {
-    	System.out.println("TaskController.executeTask...Executing the task with id: " + taskId);
-    	System.out.println("TaskController.executeTask...Following form data received:");
-        System.out.println(form);
-        
-        User author = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        
-        Task task = taskService.createTaskQuery()
-                .taskId(taskId)
-                .active()
-                .taskAssignee(author.getId().toString())
-                .list().get(0);
-            if(task == null) {
-            	System.out.println("TaskController.executeTask...Task completed succesfully.");
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
+		List<FormField> properties = tfd.getFormFields();
 
-            runtimeService.setVariables(task.getProcessInstanceId(), form);
-            taskService.complete(taskId);
+		return new ResponseEntity<>(new FormFieldsDto(taskId, "publishScientificPaper", properties), HttpStatus.OK);
+	}
 
-        	System.out.println("TaskController.executeTask...Task completed succesfully.");
+	@PostMapping(path = "executeTask/{taskId}")
+	public ResponseEntity<?> executeTask(@RequestBody Map<String, Object> form, @PathVariable String taskId) {
+		System.out.println("TaskController.executeTask...Executing the task with id: " + taskId);
+		System.out.println("TaskController.executeTask...Following form data received:");
+		System.out.println(form);
 
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+		User author = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+
+		Task task = taskService.createTaskQuery().taskId(taskId).active().taskAssignee(author.getId().toString()).list()
+				.get(0);
+		if (task == null) {
+			System.out.println("TaskController.executeTask...Task completed succesfully.");
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		runtimeService.setVariables(task.getProcessInstanceId(), form);
+		taskService.complete(taskId);
+
+		System.out.println("TaskController.executeTask...Task completed succesfully.");
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@PostMapping(path = "executeTaskReviewers/{taskId}")
+	public ResponseEntity<?> executeTaskReviewers(@RequestBody Map<String, Object> form, @PathVariable String taskId) {
+		System.out.println("TaskController.executeTaskReviewers...Executing the task with id: " + taskId);
+		System.out.println("TaskController.executeTaskReviewers...Following form data received:");
+		System.out.println(form);
+
+		User author = userService.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+
+		Task task = taskService.createTaskQuery().taskId(taskId).active().taskAssignee(author.getId().toString()).list()
+				.get(0);
+		if (task == null) {
+			System.out.println("TaskController.executeTask...Task completed succesfully.");
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+
+		if (form.get("review") != null) {
+			System.out.println("Found review");
+			List<Map<String, Object>> reviews = (List<Map<String, Object>>) runtimeService
+					.getVariable(task.getProcessInstanceId(), "reviews");
+
+			System.out.println("Before adding");
+			reviews.add((Map<String, Object>) form.get("review"));
+			runtimeService.setVariable(task.getProcessInstanceId(), "reviews", reviews);
+		}
+		
+		runtimeService.setVariables(task.getProcessInstanceId(), form);
+		taskService.complete(taskId);
+		System.out.println("TaskController.executeTaskReviewers...Task completed succesfully.");
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

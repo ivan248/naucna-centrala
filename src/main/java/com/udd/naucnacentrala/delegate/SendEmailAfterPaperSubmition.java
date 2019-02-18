@@ -5,9 +5,9 @@ import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.udd.naucnacentrala.config.EmailUtils;
 import com.udd.naucnacentrala.domain.User;
 import com.udd.naucnacentrala.service.UserService;
+import com.udd.naucnacentrala.service.impl.EmailService;
 
 
 @Component
@@ -17,7 +17,7 @@ public class SendEmailAfterPaperSubmition implements JavaDelegate {
 	private UserService userService;
 	
 	@Autowired
-	private EmailUtils emailService;
+	private EmailService emailService;
  	
     @Override
     public void execute(DelegateExecution execution) throws Exception {
